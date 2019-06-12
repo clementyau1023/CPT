@@ -1,76 +1,143 @@
 import arcade
 
 
-WIDTH = 640
-HEIGHT = 480
+WIDTH = 1280
+HEIGHT = 720
 
-# start player position in middle of window
-player_x = 10
-player_y = HEIGHT/2
-
+# player 1
+player_1_x = 10
+player_1_y = HEIGHT/2
 # Variables to record if certain keys are being pressed.
-up_pressed = False
-down_pressed = False
-left_pressed = False
-right_pressed = False
+player_1_up_pressed = False
+player_1_down_pressed = False
 
+
+# player 2
+player_2_x = 1270
+player_2_y = HEIGHT/2
+# Variables to record if certain keys are being pressed.
+player_2_up_pressed = False
+player_2_down_pressed = False
+
+# ball
+
+ball_radius = 10
+
+
+ball_x = WIDTH/2      # Initial x position
+ball_y = HEIGHT/2       # Initial y position
+delta_x = 1       # change in x
+delta_y = 1    # change in y
 
 def on_update(delta_time):
-    global up_pressed, down_pressed, player_y
-    if up_pressed:
-        player_y += 5
+   # player 1 movement
+   global player_1_up_pressed, player_1_down_pressed, player_1_y
 
-    elif down_pressed:
-        player_y -= 5
+    # top border limit
+   if player_1_y >= 648:
+       player_1_y += 0
+   elif player_1_up_pressed:
+       player_1_y += 15
 
-    if player_x < player_x // 2 or player_x > WIDTH - player_x // 2:
-        delta_y == 0
+    # bottom border limit
+   if player_1_y <= 72:
+       player_1_y -= 0
+   elif player_1_down_pressed:
+       player_1_y -= 15
 
-    if player_y < player_y // 2 or player_y > HEIGHT - player_y // 2:
-        delta_y == 0
+
+   # player 2 movement
+   global player_2_up_pressed, player_2_down_pressed, player_2_y
+
+    # top border limit
+   if player_2_y >= 648:
+       player_2_y += 0
+   elif player_2_up_pressed:
+       player_2_y += 15
+
+    # bottom border limit
+   if player_2_y <= 72:
+       player_2_y -= 0
+   elif player_2_down_pressed:
+       player_2_y -= 15
+
+    # ball movement
+   global ball_x, ball_y
+   global delta_x, delta_y
+
+   ball_x += delta_x
+   ball_y += delta_y
+
+   # Figure out if we hit the edge and need to reverse.
+   if ball_x < (player_1_x + 5) or ball_x > (player_2_x - 5) and ball_y < (player_1_y + 72 or - 72) or ball_y > player_2_y:
+       delta_x = -(delta_x*1.1)
+       delta_y = -delta_y
 
 
 def on_draw():
-    global player_x, player_y
-    arcade.start_render()
-    # Draw in here...
-    arcade.draw_rectangle_filled(player_x, player_y, 10, 60, arcade.color.BLUSH)
+   arcade.start_render()
+   # player 1
+   arcade.draw_rectangle_filled(player_1_x, player_1_y, 10, 144, arcade.color.BLUSH)
+
+   # player 2
+   arcade.draw_rectangle_filled(player_2_x, player_2_y, 10, 144, arcade.color.BLUSH)
+
+   # ball
+   arcade.draw_circle_filled(ball_x, ball_y, ball_radius, arcade.color.GRAPE)
+
 
 def on_key_press(key, modifiers):
-    global up_pressed, down_pressed
-    if key == arcade.key.W:
-        up_pressed = True
+   # player 1 key press
+   global player_1_up_pressed, player_1_down_pressed, player_2_up_pressed, player_2_down_pressed
 
-    elif key == arcade.key.S:
-        down_pressed = True
+   if key == arcade.key.W:
+       player_1_up_pressed = True
+
+   elif key == arcade.key.S:
+       player_1_down_pressed = True
+
+   # player 2 key press
+   if key == arcade.key.UP:
+       player_2_up_pressed = True
+
+   elif key == arcade.key.DOWN:
+       player_2_down_pressed = True
 
 
 def on_key_release(key, modifiers):
-    global up_pressed, down_pressed
-    if key == arcade.key.W:
-        up_pressed = False
+   # player 1 key release
+   global player_1_up_pressed, player_1_down_pressed, player_2_up_pressed, player_2_down_pressed
 
-    elif key == arcade.key.S:
-        down_pressed = False
+   if key == arcade.key.W:
+       player_1_up_pressed = False
+   elif key == arcade.key.S:
+       player_1_down_pressed = False
+
+   # player 2 key release
+   if key == arcade.key.UP:
+       player_2_up_pressed = False
+
+   elif key == arcade.key.DOWN:
+       player_2_down_pressed = False
 
 
 def on_mouse_press(x, y, button, modifiers):
-    pass
+   pass
 
 
 def setup():
-    arcade.open_window(WIDTH, HEIGHT, "My Arcade Game")
-    arcade.set_background_color(arcade.color.WHITE)
-    arcade.schedule(on_update, 1/60)
+   arcade.open_window(WIDTH, HEIGHT, "My Arcade Game")
+   arcade.set_background_color(arcade.color.WHITE)
+   arcade.schedule(on_update, 1/60)
 
-    # Override arcade window methods
-    window = arcade.get_window()
-    window.on_draw = on_draw
-    window.on_key_press = on_key_press
-    window.on_key_release = on_key_release
+   # Override arcade window methods
+   window = arcade.get_window()
+   window.on_draw = on_draw
+   window.on_key_press = on_key_press
+   window.on_key_release = on_key_release
 
-    arcade.run()
+   arcade.run()
 
 
 if __name__ == '__main__':
-    setup()
+   setup()
