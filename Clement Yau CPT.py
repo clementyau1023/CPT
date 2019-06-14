@@ -29,6 +29,7 @@ ball_y = HEIGHT/2       # Initial y position
 delta_x = 1       # change in x
 delta_y = 1    # change in y
 
+
 def on_update(delta_time):
    # player 1 movement
    global player_1_up_pressed, player_1_down_pressed, player_1_y
@@ -61,17 +62,40 @@ def on_update(delta_time):
    elif player_2_down_pressed:
        player_2_y -= 15
 
-    # ball movement
+
+
+
+   # ball movement
    global ball_x, ball_y
    global delta_x, delta_y
 
    ball_x += delta_x
    ball_y += delta_y
 
-   # Figure out if we hit the edge and need to reverse.
-   if ball_x < (player_1_x + 5) or ball_x > (player_2_x - 5) and ball_y < (player_1_y + 72 or - 72) or ball_y > player_2_y:
-       delta_x = -(delta_x*1.1)
-       delta_y = -delta_y
+    # player 1 ball bounce
+   if (ball_x == 15) and (player_1_y - 72 <= ball_y <= player_1_y):
+       delta_x *= -1.5
+       delta_y *= 1
+
+   if (ball_x == 15) and (player_1_y <= ball_y <= player_1_y + 72):
+       delta_x *= -1.5
+       delta_y *= -1
+
+
+    # player 2 ball bounce
+   if (ball_x == 1270 - ball_radius // 2) and ((player_2_y <= ball_y <= player_2_y + 72)):
+       delta_x *= -1.5
+       delta_y *= -1
+
+   if (ball_x == 1270 - ball_radius // 2) and (player_2_y - 72 <= ball_y <= player_2_y):
+       delta_x *= -1.5
+       delta_y *= 1
+
+
+    # ball border limits
+   if ball_y == ball_radius // 2 or ball_y == HEIGHT - ball_radius // 2:
+       delta_y *= -1
+
 
 
 def on_draw():
