@@ -32,7 +32,7 @@ ball_initial_y = HEIGHT/2   # Ball initial y location
 ball_x = ball_initial_x     # Ball x location
 ball_y = ball_initial_y     # Initial y position
 max_speed = 10              # Maximum speed of ball
-minimum_speed = 2           # Starting speed of ball
+minimum_speed = 2           # Starting speed of ball 
 delta_x = minimum_speed     # Change in x location
 delta_y = 2                 # Change in y location
 
