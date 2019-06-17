@@ -4,7 +4,7 @@ import random
 WIDTH = 1280
 HEIGHT = 720
 
-# player 1
+# Player 1
 player_1_x = 10             # Player 1 paddle x location
 player_1_y = HEIGHT/2       # Player 1 paddle y location
 player_1_width = 10         # Player 1 paddle width
@@ -14,7 +14,7 @@ player_1_score = 0          # Player 1 score
 player_1_up = False         # Player 1 up key
 player_1_down = False       # Player 1 down key
 
-# player 2
+# Player 2
 player_2_x = 1270           # Player 2 paddle x location
 player_2_y = HEIGHT/2       # Player 2 paddle y location
 player_2_width = 10         # Player 2 paddle width
@@ -23,8 +23,9 @@ player_2_score = 0          # Player 2 score
 
 player_2_up = False         # Player 2 up key
 player_2_down = False       # Player 2 down key
+win_text_count = 0
 
-# ball
+# Ball
 ball_radius = 10            # Ball size
 ball_initial_x = WIDTH/2    # Ball initial x location
 ball_initial_y = HEIGHT/2   # Ball initial y location
@@ -35,14 +36,17 @@ minimum_speed = 2           # Starting speed of ball
 delta_x = minimum_speed     # Change in x location
 delta_y = 2                 # Change in y location
 
-
 # Start of round
 first_to_5_wins = True      # First to score 5 times wins (Text)
 ball_start = False          # Ball start movement
 reset = False               # Reset positions
-start_text = True           # Press space to start (Text)
 round_number = 1            # Number of rounds played in this game
 round_number_display = True
+
+# Flashing start text
+start_text = True           # Press space to start
+start_text_display = True   # Press space to start (Text)
+start_text_flash = 0        # Start text flashes
 
 # Who starts with the ball on round 1
 if random.randint(0, 1) == 0:
@@ -50,8 +54,13 @@ if random.randint(0, 1) == 0:
 else:
     player_start = "Player 2"
 
+if player_start == "Player 1":
+    delta_x = -minimum_speed
+else:
+    delta_x = minimum_speed
+
 # End of game
-# which player has won the round
+# Which player has won the round
 player_1_win_text = False
 player_2_win_text = False
 
@@ -68,9 +77,9 @@ def on_update(delta_count):
     global player_1_up, player_1_down, player_1_y, player_1_score, player_1_win_text
     global player_2_up, player_2_down, player_2_y, player_2_score, player_2_win_text
     global ball_x, ball_y, delta_x, delta_y
-    global reset, ball_start, player_start, start_text, first_to_5_wins, round_number, round_number_display
+    global reset, ball_start, player_start, start_text, start_text_flash, start_text_display, start_text_flash_on, start_text_flash_off, first_to_5_wins, round_number, round_number_display
     global player_1_win, player_2_win, game_over, win_text_count
-    global restart_key, restart
+    global restart_key, restart, win_text_count
 
 # Movement within a round
     # Player 1 top border limit
@@ -133,6 +142,15 @@ def on_update(delta_count):
         player_2_win_text = True
         reset = True
 
+    if start_text:
+        start_text_flash += 1
+        if start_text_flash % 60 == 0:
+            start_text_display = True
+        elif (start_text_flash + 30) % 60 == 0:
+            start_text_display = False
+    else:
+        start_text_display = False
+
     if reset:
         ball_x = ball_initial_x
         ball_y = ball_initial_y
@@ -154,11 +172,6 @@ def on_update(delta_count):
     if player_1_win or player_2_win:
         game_over = True
 
-    if player_2_score < player_1_score == 5:
-        player_1_win = True
-    elif player_1_score < player_2_score == 5:
-        player_2_win = True
-
     if game_over:
         restart_key = True
         start_text = False
@@ -168,15 +181,23 @@ def on_update(delta_count):
         player_1_win_text = False
         player_2_win_text = False
 
+    # Stop from continuously changing game over to True
+    if not restart_key:
+        if player_2_score < player_1_score == 5:
+            player_1_win = True
+        elif player_1_score < player_2_score == 5:
+            player_2_win = True
+
     # Win text disappears
     if game_over:
-        win_text_count = 0
-        if win_text_count == 180:
+        if win_text_count == 600:
             player_1_win = False
             player_2_win = False
+            win_text_count = 0
         else:
             win_text_count += 1
 
+    # Restarts game
     if restart:
         player_1_score = 0
         player_2_score = 0
@@ -188,24 +209,22 @@ def on_update(delta_count):
         round_number = 1
         game_over = False
         start_text = True
-        round_number_display  = True
+        round_number_display = True
         restart = False
-
 
 
 def on_draw():
     arcade.start_render()
-    global first_to_5_wins, start_text, round_number_display
+    global first_to_5_wins, start_text_display, round_number_display
     global player_1_win_text, player_2_win_text
     global player_1_win, player_2_win, game_over
-
 
     # First to score 5 times wins
     if first_to_5_wins:
         arcade.draw_text("First to score 5 times wins", WIDTH // 2, 5 * HEIGHT // 6, arcade.color.WHITE, 45,  font_name="Comic Sans",  align="center", anchor_x="center", anchor_y="center")
 
     # Press start to play
-    if start_text:
+    if start_text_display:
         arcade.draw_text("Press space to start", ball_initial_x, ball_initial_y, arcade.color.WHITE, 45,  font_name="Comic Sans",  align="center", anchor_x="center", anchor_y="bottom")
 
     # Round number
@@ -214,27 +233,23 @@ def on_draw():
 
     # Player 1 or 2 has won
     if player_1_win_text:
-        arcade.draw_text("Player 1 wins", 4 * WIDTH // 32, 4 * HEIGHT // 6, arcade.color.WHITE, 30, font_name="Comic Sans",  align="center", anchor_x="center", anchor_y="bottom")
+        arcade.draw_text("Player 1 wins", 4 * WIDTH // 32, 4 * HEIGHT // 6, arcade.color.GREEN, 30, font_name="Comic Sans",  align="center", anchor_x="center", anchor_y="bottom")
     elif player_2_win_text:
-        arcade.draw_text("Player 2 wins", 28 * WIDTH // 32, 4 * HEIGHT // 6, arcade.color.WHITE, 30, font_name="Comic Sans",  align="center", anchor_x="center", anchor_y="bottom")
+        arcade.draw_text("Player 2 wins", 28 * WIDTH // 32, 4 * HEIGHT // 6, arcade.color.GREEN, 30, font_name="Comic Sans",  align="center", anchor_x="center", anchor_y="bottom")
 
     # Player 1 score
     arcade.draw_text(str(player_1_score), 4 * WIDTH // 32, 5 * HEIGHT // 6, arcade.color.WHITE, 75, align="center", anchor_x="center", anchor_y="center")
-
     # Player 2 score
     arcade.draw_text(str(player_2_score), 28 * WIDTH // 32, 5 * HEIGHT // 6, arcade.color.WHITE, 75, align="center", anchor_x="center", anchor_y="center")
 
     # Game won
     if player_1_win:
-        arcade.draw_text("Player 1 beat player 2", WIDTH // 2,  HEIGHT // 2, arcade.color.WHITE, 85, font_name="Comic Sans", align="center", anchor_x="center", anchor_y="bottom")
-
-    elif player_2_win:
+        arcade.draw_text("Player 1 beat player 2", WIDTH // 2,  HEIGHT // 2, arcade.color.WHITE, 85, font_name="Comic Sans", align="center", anchor_x="center", anchor_y="bottom")    elif player_2_win:
         arcade.draw_text("Player 2 beat player 1", WIDTH // 2,  HEIGHT // 2, arcade.color.WHITE, 85, font_name="Comic Sans", align="center", anchor_x="center", anchor_y="bottom")
 
-    # Restart game text
-    if game_over:
+    # Restart game option
+    if restart_key:
         arcade.draw_text("Press enter to restart", WIDTH // 2,  HEIGHT // 4, arcade.color.WHITE, 50, font_name="Comic Sans", align="center", anchor_x="center", anchor_y="bottom")
-
 
     # Ball
     arcade.draw_circle_filled(ball_x, ball_y, ball_radius, arcade.color.NEON_GREEN)
@@ -254,11 +269,15 @@ def on_key_press(key, modifiers):
 
     # Space to start, remove on screen text
     if key == arcade.key.SPACE:
-        ball_start = True
-        start_text = False
-        player_1_win_text = False
-        player_2_win_text = False
-        first_to_5_wins = False
+        if not game_over:
+            ball_start = True
+            start_text = False
+            player_1_win_text = False
+            player_2_win_text = False
+            first_to_5_wins = False
+
+        else:
+            ball_start = False
 
     # Player 1 movement
     if key == arcade.key.W:
@@ -286,11 +305,14 @@ def on_key_release(key, modifiers):
 
     # Space to start, remove on screen text
     if key == arcade.key.SPACE:
-        ball_start = True
-        start_text = False
-        player_1_win_text = False
-        player_2_win_text = False
-        first_to_5_wins = False
+        if not game_over:
+            ball_start = True
+            start_text = False
+            player_1_win_text = False
+            player_2_win_text = False
+            first_to_5_wins = False
+        else:
+            ball_start = False
 
     # Player 1 movement
     if key == arcade.key.W:
@@ -307,7 +329,7 @@ def on_key_release(key, modifiers):
     # Restart game
     if restart_key:
         if key == arcade.key.ENTER:
-            restart = True
+            restart_key = False
 
 def on_mouse_press(x, y, button, modifiers):
     pass
@@ -315,7 +337,7 @@ def on_mouse_press(x, y, button, modifiers):
 def setup():
     arcade.open_window(WIDTH, HEIGHT, "Pong")
     arcade.set_background_color(arcade.color.BLACK)
-    arcade.schedule(on_update, 1/100)
+    arcade.schedule(on_update, 1/60)
 
     # override arcade window methods
     window = arcade.get_window()
