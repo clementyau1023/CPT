@@ -30,9 +30,9 @@ ball_radius = 10            # Ball size
 ball_initial_x = WIDTH/2    # Ball initial x location
 ball_initial_y = HEIGHT/2   # Ball initial y location
 ball_x = ball_initial_x     # Ball x location
-ball_y = ball_initial_y     # Initial y position
+ball_y = ball_initial_y     # Ball y position
 max_speed = 10              # Maximum speed of ball
-minimum_speed = 2           # Starting speed of ball 
+minimum_speed = 2           # Starting speed of ball
 delta_x = minimum_speed     # Change in x location
 delta_y = 2                 # Change in y location
 
@@ -68,7 +68,7 @@ player_2_win_text = False
 game_over = False       # A player has won the game
 player_1_win = False    # player 1 won (Text)
 player_2_win = False    # player 2 won (Text)
-win_text_count = 0      # Win text disappears after 30 seconds
+win_text_count = 0      # Win text disappears after 10 seconds
 # Restart game statistics
 restart = False
 restart_key = False
@@ -112,7 +112,6 @@ def on_update(delta_count):
     if ball_start:
         ball_x += delta_x
         ball_y += delta_y
-        player_1_win_text = False
 
     # Ball bounces off paddle
     # Player 1
@@ -244,7 +243,8 @@ def on_draw():
 
     # Game won
     if player_1_win:
-        arcade.draw_text("Player 1 beat player 2", WIDTH // 2,  HEIGHT // 2, arcade.color.WHITE, 85, font_name="Comic Sans", align="center", anchor_x="center", anchor_y="bottom")    elif player_2_win:
+        arcade.draw_text("Player 1 beat player 2", WIDTH // 2,  HEIGHT // 2, arcade.color.WHITE, 85, font_name="Comic Sans", align="center", anchor_x="center", anchor_y="bottom")
+    elif player_2_win:
         arcade.draw_text("Player 2 beat player 1", WIDTH // 2,  HEIGHT // 2, arcade.color.WHITE, 85, font_name="Comic Sans", align="center", anchor_x="center", anchor_y="bottom")
 
     # Restart game option
@@ -275,7 +275,6 @@ def on_key_press(key, modifiers):
             player_1_win_text = False
             player_2_win_text = False
             first_to_5_wins = False
-
         else:
             ball_start = False
 
